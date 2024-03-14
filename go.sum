@@ -1,0 +1,4 @@
+github.com/go-telegram/bot v1.1.7 h1:j8j6IrU87meDtAOE9SGym9JrJho/qupCUi6YVDyW3Nk=
+github.com/go-telegram/bot v1.1.7/go.mod h1:i2TRs7fXWIeaceF3z7KzsMt/he0TwkVC680mvdTFYeM=
+github.com/sashabaranov/go-openai v1.20.3 h1:JMhaSfE1mLznYIvlf8odxbyWGiFFGnQjyLw00I9R4fU=
+github.com/sashabaranov/go-openai v1.20.3/go.mod h1:lj5b/K+zjTSFxVLijLSTDZuP7adOgerWeFyZLUhAKRg=
