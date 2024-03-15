@@ -4,6 +4,11 @@ on:
   push:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+  packages: write
+  issues: write
+
 jobs:
 
   build:
@@ -31,8 +36,27 @@ jobs:
 
     - name: Build and push
       uses: docker/build-push-action@v5
+      id: build
       with:
         context: .
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         push: true
+
+    - name: Compute image name
+      id: image_name
+      run: echo "IMAGE_NAME=registry.k8s.smee.ovh/${{ github.repository }}:${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
+    
+    - name: Update Kubernetes deployment image
+      run: |
+        sed -i 's|image:.*|image: ${{ steps.image_name.outputs.image_name }}|' argocd/deployment.yaml
+        sed -i 's|image:.*|image: ${{ steps.image_name.outputs.image_name }}|' argocd/cronjob.yaml
+      shell: bash
+
+    - name: Commit and push updated manifests
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add argocd/deployment.yaml argocd/cronjob.yaml
+        git commit -m "Update deployment image to new version"
+        git push
