@@ -47,7 +47,7 @@ jobs:
       id: image_name
       run: |
         # Get github.repository on lowercase
-        REPO=$(echo "${{ github.repository }}"" | tr '[:upper:]' '[:lower:]')
+        REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
         echo "IMAGE_NAME=registry.k8s.smee.ovh/$REPO@${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
     
     - name: Update Kubernetes deployment image
