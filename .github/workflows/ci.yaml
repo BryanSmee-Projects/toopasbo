@@ -24,8 +24,10 @@ jobs:
       id: meta
       with:
           images: registry.k8s.smee.ovh/${{ github.repository }}
-          flavor: |
-            latest=true
+          tags: |
+            type=sha
+            latest
+
 
     - name: Build and push
       uses: docker/build-push-action@v5
