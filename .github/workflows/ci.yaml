@@ -45,7 +45,7 @@ jobs:
 
     - name: Compute image name
       id: image_name
-      run: echo "IMAGE_NAME=registry.k8s.smee.ovh/${{ github.repository }}:${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
+      run: echo "IMAGE_NAME=registry.k8s.smee.ovh/${{ github.repository }}@${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
     
     - name: Update Kubernetes deployment image
       run: |
