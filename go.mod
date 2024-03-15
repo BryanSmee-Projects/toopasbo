@@ -1,6 +1,6 @@
 module smee.ovh/toopasbo
 
-go 1.22.1
+go 1.21.6
 
 require github.com/go-telegram/bot v1.1.7
 
