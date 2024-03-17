@@ -13,4 +13,4 @@ FROM gcr.io/distroless/static
 
 COPY --from=builder /app/toopasbo /
 
-CMD ["/toopasbo"]
+ENTRYPOINT ["/toopasbo"]

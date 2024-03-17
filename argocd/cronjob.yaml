@@ -14,7 +14,7 @@ spec:
             - name: toopasbo
               image: registry.k8s.smee.ovh/bryansmee/toopasbo@sha256:328e9603076b9d8811b3cc7928f3ea5847f8c872774f8d3b399afcaad664552f
               restartPolicy: never
-              args: ["-server=true"]
+              args: ["-server"]
               env:
                 - name: OPENWEATHER_API_KEY
                   valueFrom:
