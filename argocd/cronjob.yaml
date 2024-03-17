@@ -12,7 +12,7 @@ spec:
             - name: regcred
           containers:
             - name: toopasbo
-              image: registry.k8s.smee.ovh/bryansmee/toopasbo@sha256:328e9603076b9d8811b3cc7928f3ea5847f8c872774f8d3b399afcaad664552f
+              image: registry.k8s.smee.ovh/bryansmee/toopasbo@sha256:1d6f58c6203a9a510623720bae8ba6da690da8476c9a85bc88e36ed81e4e7fc1
               restartPolicy: never
               args: ["-server"]
               env:
