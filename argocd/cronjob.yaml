@@ -8,6 +8,8 @@ spec:
     spec:
       template:
         spec:
+          imagePullSecrets:
+            - name: regcred
           containers:
             - name: toopasbo
               image: registry.k8s.smee.ovh/bryansmee/toopasbo@sha256:82d56cf87baced41246330c4b2edbce1e9ff38f5b847683baa64da027428c35c
