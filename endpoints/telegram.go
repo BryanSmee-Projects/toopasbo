@@ -16,7 +16,7 @@ import (
 )
 
 var telegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
-var chatIDsFile = "./chat_ids.txt"
+var chatIDsFile = "./persistentdata/chat_ids.txt"
 
 func loadChatIDs() ([]string, error) {
 	if _, err := os.Stat(chatIDsFile); os.IsNotExist(err) {

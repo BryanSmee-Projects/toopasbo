@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: chatids-pvc
+  name: toopasbo-pvc
 spec:
   accessModes:
     - ReadWriteMany

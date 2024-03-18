@@ -39,10 +39,9 @@ spec:
               cpu: "0.2"
               memory: "200Mi"
           volumeMounts:
-            - name: chatids-volume
-              mountPath: /chat_ids.txt
-              subPath: chat_ids.txt
+            - name: toopasbo-volume
+              mountPath: /persistentdata
       volumes:
-        - name: chatids-volume
+        - name: toopasbo-volume
           persistentVolumeClaim:
-            claimName: chatids-pvc
+            claimName: toopasbo-pvc
