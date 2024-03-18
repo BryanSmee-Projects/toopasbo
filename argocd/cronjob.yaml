@@ -36,7 +36,7 @@ spec:
                   memory: "200Mi"
               volumeMounts:
                 - name: chatids-volume
-                  mountPath: /app/chat_ids.txt
+                  mountPath: /chat_ids.txt
                   subPath: chat_ids.txt
           volumes:
             - name: chatids-volume
