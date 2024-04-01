@@ -20,6 +20,8 @@ spec:
         - name: toopasbo
           image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:408a9a3d2840cc7079ae041a423e53fd895decb044744d8731b0bc10d0db9407
           args: ["-server"]
+          ports:
+            - containerPort: 8080
           env:
             - name: OPENWEATHER_API_KEY
               valueFrom:
@@ -36,6 +38,8 @@ spec:
                 secretKeyRef:
                   name: toopasbo-secret
                   key: TELEGRAM_BOT_TOKEN
+            - name: CLOUDEVENT_PORT
+              value: "8080"
           resources:
             limits:
               cpu: "0.2"
