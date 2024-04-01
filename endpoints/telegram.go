@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -65,6 +66,40 @@ func registerChatID(chatID string) error {
 
 	writer := bufio.NewWriter(file)
 	for _, id := range chatIDs {
+		_, err := writer.WriteString(id + "\n")
+		if err != nil {
+			return err
+		}
+	}
+
+	return writer.Flush()
+}
+
+func deleteChatID(chatID string) error {
+	chatIDs, err := loadChatIDs()
+	if err != nil {
+		return err
+	}
+
+	if !contains(chatIDs, chatID) {
+		return nil
+	}
+
+	newChatIDs := []string{}
+	for _, id := range chatIDs {
+		if id != chatID {
+			newChatIDs = append(newChatIDs, id)
+		}
+	}
+
+	file, err := os.Create(chatIDsFile)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	for _, id := range newChatIDs {
 		_, err := writer.WriteString(id + "\n")
 		if err != nil {
 			return err
@@ -139,10 +174,20 @@ func SendImageAllTelegram(imagePath string, weather string, b *bot.Bot, ctx cont
 		})
 
 		if errTelegram != nil {
-			fmt.Println("Error sending image:", errTelegram)
-			panic(errTelegram)
+			handleSendError(chatID, errTelegram)
 		}
 	}
+}
+
+func handleSendError(chatID string, err error) {
+	errorString := err.Error()
+	if strings.Contains(errorString, "group chat was upgraded to a supergroup chat") {
+		fmt.Println("Chat was upgraded to supergroup, deleting chat ID")
+		deleteChatID(chatID)
+		return
+	}
+
+	log.Fatalf("Unsupported error: %v", errorString)
 }
 
 func parseCommand(command string) (string, string) {
