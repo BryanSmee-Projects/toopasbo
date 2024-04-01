@@ -4,6 +4,8 @@ metadata:
   name: toopasbo
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: toopasbo
