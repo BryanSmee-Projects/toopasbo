@@ -221,16 +221,5 @@ func registerHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 }
 
 func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
-	chatIDs, err := loadChatIDs()
-	if err != nil {
-		panic(err)
-	}
-
-	for _, chatID := range chatIDs {
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: chatID,
-			Text:   "Hello, just booted!",
-		})
-	}
-
+	// Default action on message is to do nothing
 }
