@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: toopasbo-cronjob
+spec:
+  schedule: "0 10 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: toopasbo
+            image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:05356e4569e467378096d39b554fad89bfa1968890481173fc598f1abeb591e5
+            args: ["-server"]
+            env:
+              - name: OPENWEATHER_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: toopasbo-secret
+                    key: OPENWEATHER_API_KEY
+              - name: OPENAI_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: toopasbo-secret
+                    key: OPENAI_API_KEY
+              - name: TELEGRAM_BOT_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: toopasbo-secret
+                    key: TELEGRAM_BOT_TOKEN
+            resources:
+              limits:
+                cpu: "0.2"
+                memory: "200Mi"
+            volumeMounts:
+              - name: toopasbo-volume
+                mountPath: /persistentdata
+          volumes:
+            - name: toopasbo-volume
+              persistentVolumeClaim:
+                claimName: toopasbo-pvc
+          restartPolicy: Never

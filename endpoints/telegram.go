@@ -9,11 +9,17 @@ import (
 	"strconv"
 	"strings"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"smee.ovh/toopasbo/gatherers"
 	"smee.ovh/toopasbo/transformers"
 )
+
+type TelegramImageEventData struct {
+	ImageLink string
+	Weather   string
+}
 
 var telegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
 var chatIDsFile = "./persistentdata/chat_ids.txt"
@@ -91,11 +97,30 @@ var captionTemplate = `
 Current temperature is %d°C. Expect a minimum of %d°C and a maximum of %d°C.
 `
 
-func weatherToTelegramText(weather gatherers.Weather) string {
+func WeatherToTelegramText(weather gatherers.Weather) string {
 	return fmt.Sprintf(captionTemplate, weather.Summary, weather.CurrentTemperature, weather.MinTemperature, weather.MaxTemperature)
 }
 
-func SendImageToTelegram(imagePath string, weather gatherers.Weather, b *bot.Bot, ctx context.Context) {
+func SendImageAllCloudEventHandler(event cloudevents.Event, eventCtx CloudEventContext) {
+	fmt.Println("Received event to send image to all telegram chats")
+	data := &TelegramImageEventData{}
+	if err := event.DataAs(data); err != nil {
+		fmt.Printf("failed to convert data: %v", err)
+	}
+
+	fmt.Println("Downloading image...")
+	imagePath, err := DownloadFile(data.ImageLink)
+	if err != nil {
+		fmt.Println("Error downloading image:", err)
+		panic(err)
+	}
+
+	fmt.Println("Sending image to all telegram chats...")
+	SendImageAllTelegram(imagePath, data.Weather, eventCtx.Bot, eventCtx.Ctx)
+
+}
+
+func SendImageAllTelegram(imagePath string, weather string, b *bot.Bot, ctx context.Context) {
 	chatIDs, err := loadChatIDs()
 	if err != nil {
 		panic(err)
@@ -110,10 +135,11 @@ func SendImageToTelegram(imagePath string, weather gatherers.Weather, b *bot.Bot
 		_, errTelegram := b.SendPhoto(ctx, &bot.SendPhotoParams{
 			ChatID:  chatID,
 			Photo:   &models.InputFileUpload{Filename: "dalle.png", Data: bytes.NewReader(imageData)},
-			Caption: weatherToTelegramText(weather),
+			Caption: weather,
 		})
 
 		if errTelegram != nil {
+			fmt.Println("Error sending image:", errTelegram)
 			panic(errTelegram)
 		}
 	}
@@ -168,7 +194,7 @@ func meteoHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	_, errTelegram := b.SendPhoto(ctx, &bot.SendPhotoParams{
 		ChatID:  update.Message.Chat.ID,
 		Photo:   &models.InputFileUpload{Filename: "dalle.png", Data: bytes.NewReader(imageData)},
-		Caption: weatherToTelegramText(weather),
+		Caption: WeatherToTelegramText(weather),
 	})
 
 	if errTelegram != nil {

@@ -1,12 +1,8 @@
 package transformers
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
-	"image/png"
-	"os"
 
 	openai "github.com/sashabaranov/go-openai"
 
@@ -40,53 +36,25 @@ func GenerateDallEPicture(weather gatherers.Weather) (string, error) {
 	fmt.Println("Creating image...")
 	fmt.Println(prompt)
 
-	reqBase64 := openai.ImageRequest{
+	reqURL := openai.ImageRequest{
 		Prompt:         prompt,
 		Size:           openai.CreateImageSize1024x1024,
 		Model:          openai.CreateImageModelDallE3,
-		ResponseFormat: openai.CreateImageResponseFormatB64JSON,
+		ResponseFormat: openai.CreateImageResponseFormatURL,
 		N:              1,
 	}
 
-	respBase64, err := client.CreateImage(ctx, reqBase64)
+	imageResponse, err := client.CreateImage(ctx, reqURL)
 	if err != nil {
 		fmt.Printf("Image creation error: %v\n", err)
 		return "", err
 	}
 
-	imgBytes, err := base64.StdEncoding.DecodeString(respBase64.Data[0].B64JSON)
-	if err != nil {
-		fmt.Printf("Base64 decode error: %v\n", err)
-		return "", err
-	}
+	url := imageResponse.Data[0].URL
 
-	r := bytes.NewReader(imgBytes)
-	imgData, err := png.Decode(r)
-	if err != nil {
-		fmt.Printf("PNG decode error: %v\n", err)
-		return "", err
-	}
+	fmt.Println("Got image URL:")
+	fmt.Println(url)
 
-	filedir, err := os.MkdirTemp("", "toopasbo-")
-	if err != nil {
-		fmt.Printf("Temp dir creation error: %v\n", err)
-		return "", err
-	}
-
-	filepath := filedir + "/dalle.png"
-
-	file, err := os.Create(filepath)
-	if err != nil {
-		fmt.Printf("File creation error: %v\n", err)
-		return "", err
-	}
-	defer file.Close()
-
-	if err := png.Encode(file, imgData); err != nil {
-		fmt.Printf("PNG encode error: %v\n", err)
-		return "", err
-	}
-
-	return filepath, nil
+	return url, nil
 
 }
