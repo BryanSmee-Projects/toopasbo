@@ -10,7 +10,7 @@ spec:
         spec:
           containers:
           - name: toopasbo
-            image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:c741f13553cab9cc3e646495c8c7ce7aea39ab166c593729be8a53d758aa5df3
+            image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:aeab4477cb5635b134d2ac75be745b34a51694541983555956401bef1486163d
             env:
               - name: OPENWEATHER_API_KEY
                 valueFrom:
