@@ -3,6 +3,7 @@ package transformers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	openai "github.com/sashabaranov/go-openai"
 
@@ -54,8 +55,10 @@ func GetClothesForWeather(weather gatherers.Weather) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("Got suggestion:")
-	fmt.Println(resp.Choices[0].Message.Content)
+	suggestion := strings.TrimSpace(resp.Choices[0].Message.Content)
 
-	return resp.Choices[0].Message.Content, nil
+	fmt.Println("Got suggestion:")
+	fmt.Println(suggestion)
+
+	return suggestion, nil
 }

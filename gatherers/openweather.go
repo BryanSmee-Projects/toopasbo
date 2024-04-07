@@ -68,3 +68,43 @@ func GetWeather(position GeoPosition) (Weather, error) {
 		Description:        openWeatherResponse.Current.Weather[0].Description,
 	}, nil
 }
+
+func GetWeatherForWeek(position GeoPosition) ([]Weather, error) {
+	latStr := fmt.Sprintf("%f", position.lat)
+	lonStr := fmt.Sprintf("%f", position.lon)
+	url := buildUrl(latStr, lonStr)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New("error getting weather, got status code " + resp.Status)
+	}
+
+	var openWeatherResponse OpenWeatherResponse
+	err = json.NewDecoder(resp.Body).Decode(&openWeatherResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var weather []Weather
+	for _, day := range openWeatherResponse.Daily {
+		weather = append(weather, Weather{
+			CurrentTemperature: int(day.Temperature.Day),
+			MinTemperature:     int(day.Temperature.Min),
+			MaxTemperature:     int(day.Temperature.Max),
+			Summary:            day.Summary,
+			WindSpeed:          int(day.WindSpeed),
+			Description:        day.Weather[0].Description,
+		})
+	}
+
+	if len(weather) > 7 {
+		weather = weather[:7]
+	}
+
+	return weather, nil
+}

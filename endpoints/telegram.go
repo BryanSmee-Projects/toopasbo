@@ -136,6 +136,10 @@ func WeatherToTelegramText(weather gatherers.Weather) string {
 	return fmt.Sprintf(captionTemplate, weather.Summary, weather.CurrentTemperature, weather.MinTemperature, weather.MaxTemperature)
 }
 
+func WeatherToShortText(weather gatherers.Weather) string {
+	return fmt.Sprintf("Min: %d°C |  Max: %d°C - %s", weather.MinTemperature, weather.MaxTemperature, weather.Description)
+}
+
 func SendImageAllCloudEventHandler(event cloudevents.Event, eventCtx CloudEventContext) {
 	fmt.Println("Received event to send image to all telegram chats")
 	data := &TelegramImageEventData{}
@@ -218,13 +222,21 @@ func meteoHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 		fmt.Printf("Error getting weather: %v", weatherErr)
 	}
 
-	imagePath, dallErr := transformers.GenerateDallEPicture(weather)
+	imageUrl, dallErr := transformers.GenerateDallEPicture(weather)
 	if dallErr != nil {
 		b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
 			Text:   fmt.Sprintf("Error generating image for city '%s'", city),
 		})
 		fmt.Printf("Error generating image: %v", dallErr)
+	}
+
+	imagePath, downloadErr := DownloadFile(imageUrl)
+	if downloadErr != nil {
+		b.SendMessage(ctx, &bot.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   fmt.Sprintf("Error downloading image for city '%s'", city),
+		})
 	}
 
 	imageData, errRead := os.ReadFile(imagePath)
