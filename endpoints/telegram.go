@@ -173,7 +173,7 @@ func SendImageAllTelegram(imagePath string, weather string, b *bot.Bot, ctx cont
 	for _, chatID := range chatIDs {
 		_, errTelegram := b.SendPhoto(ctx, &bot.SendPhotoParams{
 			ChatID:  chatID,
-			Photo:   &models.InputFileUpload{Filename: "dalle.png", Data: bytes.NewReader(imageData)},
+			Photo:   &models.InputFileUpload{Filename: "picture.png", Data: bytes.NewReader(imageData)},
 			Caption: weather,
 		})
 
@@ -222,13 +222,13 @@ func meteoHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 		fmt.Printf("Error getting weather: %v", weatherErr)
 	}
 
-	imageUrl, dallErr := transformers.GenerateDallEPicture(weather)
-	if dallErr != nil {
+	imageUrl, err := transformers.GenerateMidjourneyPicture(weather)
+	if err != nil {
 		b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
 			Text:   fmt.Sprintf("Error generating image for city '%s'", city),
 		})
-		fmt.Printf("Error generating image: %v", dallErr)
+		fmt.Printf("Error generating image: %v", err)
 	}
 
 	imagePath, downloadErr := DownloadFile(imageUrl)
@@ -250,7 +250,7 @@ func meteoHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 
 	_, errTelegram := b.SendPhoto(ctx, &bot.SendPhotoParams{
 		ChatID:  update.Message.Chat.ID,
-		Photo:   &models.InputFileUpload{Filename: "dalle.png", Data: bytes.NewReader(imageData)},
+		Photo:   &models.InputFileUpload{Filename: "picture.png", Data: bytes.NewReader(imageData)},
 		Caption: WeatherToTelegramText(weather),
 	})
 

@@ -40,6 +40,8 @@ spec:
                   key: TELEGRAM_BOT_TOKEN
             - name: CLOUDEVENT_PORT
               value: "8080"
+            - name: MIDJOURNEY_API_URL
+              value: "http://midjourney-api-service.midjourney-api.svc.cluster.local:3000"
           resources:
             limits:
               cpu: "0.2"

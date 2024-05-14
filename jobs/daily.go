@@ -28,7 +28,7 @@ func dailyMode() {
 		os.Exit(1)
 	}
 
-	var imageUrl, err = transformers.GenerateDallEPicture(weather)
+	var imageUrl, err = transformers.GenerateMidjourneyPicture(weather)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

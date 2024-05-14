@@ -35,7 +35,7 @@ func GetClothesForWeather(weather gatherers.Weather) (string, error) {
 	ctx := context.Background()
 
 	req := openai.ChatCompletionRequest{
-		Model:     openai.GPT4,
+		Model:     openai.GPT4o,
 		MaxTokens: 128,
 		Messages: []openai.ChatCompletionMessage{
 			{

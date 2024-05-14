@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: toopasbo-cronjob-daily
 spec:
-  schedule: "0 8 * * *"
+  schedule: "15 7 * * *"
   jobTemplate:
     spec:
       template:
@@ -48,7 +48,7 @@ kind: CronJob
 metadata:
   name: toopasbo-cronjob-weekly
 spec:
-  schedule: "0 8 * * 1"
+  schedule: "15 7 * * 1"
   jobTemplate:
     spec:
       template:

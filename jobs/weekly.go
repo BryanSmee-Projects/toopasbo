@@ -38,7 +38,7 @@ func weeklyJob() {
 		os.Exit(1)
 	}
 
-	var imageUrl, err = transformers.GenerateWeeklyDallEPicture(weather)
+	var imageUrl, err = transformers.GenerateWeeklyMidjourneyPicture(weather)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

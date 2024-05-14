@@ -37,7 +37,7 @@ func DownloadFile(url string) (string, error) {
 		return "", fsErr
 	}
 
-	file, fileErr := os.CreateTemp(filedir, "dalle-*.png")
+	file, fileErr := os.CreateTemp(filedir, "picture-*.png")
 
 	if fileErr != nil {
 		return "", fileErr

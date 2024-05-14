@@ -4,7 +4,7 @@ go 1.21.6
 
 require github.com/go-telegram/bot v1.1.7
 
-require github.com/sashabaranov/go-openai v1.20.3
+require github.com/sashabaranov/go-openai v1.24.0
 
 require (
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
