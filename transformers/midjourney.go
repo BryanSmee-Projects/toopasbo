@@ -20,7 +20,7 @@ type MidJourneyRequest struct {
 	Prompt string `json:"prompt"`
 }
 
-var midjourneyPromptTemplate = `Fullbody photorealistic portrait of a humanoid %s dressed with %s, fullbody. Weather is %s. Takes place in %s`
+var midjourneyPromptTemplate = `Full body portrait of a humanoid %s dressed with %s, standing in %s. The weather is %s. --no human`
 
 func getMidjourneyPrompt(weather gatherers.Weather) (string, error) {
 	animal := GetAnimalsByTemperature(weather.MaxTemperature)
@@ -29,7 +29,7 @@ func getMidjourneyPrompt(weather gatherers.Weather) (string, error) {
 		fmt.Printf("Error getting clothes: %v\n", err)
 		return "", err
 	}
-	return fmt.Sprintf(midjourneyPromptTemplate, animal, clothes, weather.Description, weather.Location), nil
+	return fmt.Sprintf(midjourneyPromptTemplate, animal, clothes, weather.Location, weather.Description), nil
 }
 
 func generateSimpleImage(prompt string) (string, error) {
@@ -90,6 +90,8 @@ func GenerateWeeklyMidjourneyPicture(weathers []gatherers.Weather) (string, erro
 		}
 		prompt += " - " + strings.TrimSpace(p) + "\n"
 	}
+
+	prompt += "--no human --ar 7:4"
 
 	url, err := generateSimpleImage(prompt)
 	if err != nil {
