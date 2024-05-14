@@ -66,6 +66,7 @@ func GetWeather(position GeoPosition) (Weather, error) {
 		Summary:            openWeatherResponse.Daily[0].Summary,
 		WindSpeed:          int(openWeatherResponse.Current.WindSpeed),
 		Description:        openWeatherResponse.Current.Weather[0].Description,
+		Location:           position.name,
 	}, nil
 }
 
@@ -99,6 +100,7 @@ func GetWeatherForWeek(position GeoPosition) ([]Weather, error) {
 			Summary:            day.Summary,
 			WindSpeed:          int(day.WindSpeed),
 			Description:        day.Weather[0].Description,
+			Location:           position.name,
 		})
 	}
 

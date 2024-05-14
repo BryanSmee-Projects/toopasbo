@@ -9,8 +9,9 @@ import (
 )
 
 type OpenWeatherMapResponse struct {
-	Lat float64 `json:"lat"`
-	Lon float64 `json:"lon"`
+	Lat  float64 `json:"lat"`
+	Lon  float64 `json:"lon"`
+	Name string  `json:"name"`
 }
 
 var AllowedCountries = []string{"FR", "CZ"}
@@ -47,7 +48,7 @@ func GetCityPosition(cityName string) (GeoPosition, error) {
 		return GeoPosition{}, err
 	}
 
-	return GeoPosition{lat: openWeatherResponse[0].Lat, lon: openWeatherResponse[0].Lon}, nil
+	return GeoPosition{lat: openWeatherResponse[0].Lat, lon: openWeatherResponse[0].Lon, name: openWeatherResponse[0].Name}, nil
 
 }
 
@@ -77,5 +78,5 @@ func GetPosition(zipCode string, countryCode string) (GeoPosition, error) {
 		return GeoPosition{}, err
 	}
 
-	return GeoPosition{lat: openWeatherResponse.Lat, lon: openWeatherResponse.Lon}, nil
+	return GeoPosition{lat: openWeatherResponse.Lat, lon: openWeatherResponse.Lon, name: openWeatherResponse.Name}, nil
 }

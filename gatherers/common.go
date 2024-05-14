@@ -11,8 +11,9 @@ type Weather struct {
 }
 
 type GeoPosition struct {
-	lat float64
-	lon float64
+	lat  float64
+	lon  float64
+	name string
 }
 
 func GenerateDebugWeather() Weather {
