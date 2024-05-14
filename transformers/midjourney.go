@@ -20,7 +20,7 @@ type MidJourneyRequest struct {
 	Prompt string `json:"prompt"`
 }
 
-var midjourneyPromptTemplate = `Photorealistic portrait of a humanoid %s dressed with %s, fullbody. Weather is %s. Takes place in %s`
+var midjourneyPromptTemplate = `Fullbody photorealistic portrait of a humanoid %s dressed with %s, fullbody. Weather is %s. Takes place in %s`
 
 func getMidjourneyPrompt(weather gatherers.Weather) (string, error) {
 	animal := GetAnimalsByTemperature(weather.MaxTemperature)
