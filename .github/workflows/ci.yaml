@@ -60,7 +60,8 @@ jobs:
     - name: Compute image name
       id: image_name
       run: |
-        echo "IMAGE_NAME=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
+        LOWER_IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        echo "IMAGE_NAME=${{ env.REGISTRY }}/$LOWER_IMAGE_NAME@${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
     
     - name: Update Kubernetes deployment image
       run: |

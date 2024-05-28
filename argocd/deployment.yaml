@@ -18,7 +18,7 @@ spec:
         - name: regcred
       containers:
         - name: toopasbo
-          image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:f05e16935cfde4ba1dd39da7942f4a2014507eb36a860d8a377dbe7e2cf1ab29
+          image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:a66a2935cd1c2668e838ac862cfe852bace22f9e1738e20aa70defe5a7f620f4
           args: ["-server"]
           ports:
             - containerPort: 8080
