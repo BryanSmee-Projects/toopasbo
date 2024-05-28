@@ -10,7 +10,7 @@ spec:
         spec:
           containers:
           - name: toopasbo
-            image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:a66a2935cd1c2668e838ac862cfe852bace22f9e1738e20aa70defe5a7f620f4
+            image: ghcr.io/bryansmee-projects/toopasbo@sha256:e05133fd376579d73d06439b69d1c9013be79794600f93443d033806546309e8
             args: ["-job=daily"]
             env:
               - name: OPENWEATHER_API_KEY
@@ -57,7 +57,7 @@ spec:
         spec:
           containers:
           - name: toopasbo
-            image: registry.k8s.smee.ovh/bryansmee-projects/toopasbo@sha256:a66a2935cd1c2668e838ac862cfe852bace22f9e1738e20aa70defe5a7f620f4
+            image: ghcr.io/bryansmee-projects/toopasbo@sha256:e05133fd376579d73d06439b69d1c9013be79794600f93443d033806546309e8
             args: ["-job=weekly"]
             env:
               - name: OPENWEATHER_API_KEY
