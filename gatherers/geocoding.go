@@ -1,11 +1,13 @@
 package gatherers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
+
+	"smee.ovh/toopasbo/config"
 )
 
 type OpenWeatherMapResponse struct {
@@ -15,7 +17,6 @@ type OpenWeatherMapResponse struct {
 }
 
 var AllowedCountries = []string{"FR", "CZ"}
-var OpenWeatherAPIKey = os.Getenv("OPENWEATHER_API_KEY")
 var OpenWeatherURL = "http://api.openweathermap.org/geo/1.0/zip?zip=%s,%s&appid=%s"
 
 func isCountryAllowed(countryCode string) bool {
@@ -27,8 +28,21 @@ func isCountryAllowed(countryCode string) bool {
 	return false
 }
 
-func GetCityPosition(cityName string) (GeoPosition, error) {
-	url := fmt.Sprintf("http://api.openweathermap.org/geo/1.0/direct?q=%s&limit=1&appid=%s", cityName, OpenWeatherAPIKey)
+type OpenWeatherClient struct {
+	OpenWeatherAPIKey string
+}
+
+func NewOpenWeatherClient(ctx context.Context) (*OpenWeatherClient, error) {
+	appConfig := config.GetAppConfig(ctx)
+	if appConfig.OpenWeatherAPIKey == "" {
+		return nil, errors.New("OpenWeatherAPIKey not set")
+	}
+
+	return &OpenWeatherClient{OpenWeatherAPIKey: appConfig.OpenWeatherAPIKey}, nil
+}
+
+func (client *OpenWeatherClient) GetCityPosition(cityName string) (GeoPosition, error) {
+	url := fmt.Sprintf("http://api.openweathermap.org/geo/1.0/direct?q=%s&limit=1&appid=%s", cityName, client.OpenWeatherAPIKey)
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error getting position")
@@ -48,17 +62,21 @@ func GetCityPosition(cityName string) (GeoPosition, error) {
 		return GeoPosition{}, err
 	}
 
+	if len(openWeatherResponse) == 0 {
+		return GeoPosition{}, errors.New("no city found")
+	}
+
 	return GeoPosition{lat: openWeatherResponse[0].Lat, lon: openWeatherResponse[0].Lon, name: openWeatherResponse[0].Name}, nil
 
 }
 
-func GetPosition(zipCode string, countryCode string) (GeoPosition, error) {
+func (client *OpenWeatherClient) GetPosition(zipCode string, countryCode string) (GeoPosition, error) {
 	if !isCountryAllowed(countryCode) {
 		fmt.Println("Country not allowed")
 		return GeoPosition{}, errors.New("country not allowed")
 	}
 
-	url := fmt.Sprintf(OpenWeatherURL, zipCode, countryCode, OpenWeatherAPIKey)
+	url := fmt.Sprintf(OpenWeatherURL, zipCode, countryCode, client.OpenWeatherAPIKey)
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error getting position")

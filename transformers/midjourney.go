@@ -1,11 +1,13 @@
 package transformers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 
+	"smee.ovh/toopasbo/config"
 	"smee.ovh/toopasbo/gatherers"
 )
 
@@ -22,9 +24,9 @@ type MidJourneyRequest struct {
 
 var midjourneyPromptTemplate = `Full body portrait of a humanoid %s dressed with %s, standing in %s. The weather is %s. --no human`
 
-func getMidjourneyPrompt(weather gatherers.Weather) (string, error) {
+func getMidjourneyPrompt(ctx context.Context, weather gatherers.Weather) (string, error) {
 	animal := GetAnimalsByTemperature(weather.MaxTemperature)
-	clothes, err := GetClothesForWeather(weather)
+	clothes, err := GetClothesForWeather(ctx, weather)
 	if err != nil {
 		fmt.Printf("Error getting clothes: %v\n", err)
 		return "", err
@@ -32,7 +34,7 @@ func getMidjourneyPrompt(weather gatherers.Weather) (string, error) {
 	return fmt.Sprintf(midjourneyPromptTemplate, animal, clothes, weather.Location, weather.Description), nil
 }
 
-func generateSimpleImage(prompt string) (string, error) {
+func generateSimpleImage(ctx context.Context, prompt string) (string, error) {
 	fmt.Println("Creating image...")
 	fmt.Println(prompt)
 
@@ -46,7 +48,9 @@ func generateSimpleImage(prompt string) (string, error) {
 		return "", err
 	}
 
-	resp, err := http.Post(midjourneyApiUrl+"/simpleimage", "application/json", strings.NewReader(string(requestBodyBytes)))
+	appConfig := config.GetAppConfig(ctx)
+
+	resp, err := http.Post(appConfig.MidjourneyApiUrl+"/simpleimage", "application/json", strings.NewReader(string(requestBodyBytes)))
 	if err != nil {
 		fmt.Printf("Error making request: %v\n", err)
 		return "", err
@@ -64,14 +68,14 @@ func generateSimpleImage(prompt string) (string, error) {
 	return url, nil
 }
 
-func GenerateMidjourneyPicture(weather gatherers.Weather) (string, error) {
-	prompt, promptErr := getMidjourneyPrompt(weather)
+func GenerateMidjourneyPicture(ctx context.Context, weather gatherers.Weather) (string, error) {
+	prompt, promptErr := getMidjourneyPrompt(ctx, weather)
 	if promptErr != nil {
 		fmt.Printf("Error getting prompt: %v\n", promptErr)
 		return "", promptErr
 	}
 
-	url, err := generateSimpleImage(prompt)
+	url, err := generateSimpleImage(ctx, prompt)
 	if err != nil {
 		fmt.Printf("Error generating image: %v\n", err)
 		return "", err
@@ -80,10 +84,10 @@ func GenerateMidjourneyPicture(weather gatherers.Weather) (string, error) {
 	return url, nil
 }
 
-func GenerateWeeklyMidjourneyPicture(weathers []gatherers.Weather) (string, error) {
+func GenerateWeeklyMidjourneyPicture(ctx context.Context, weathers []gatherers.Weather) (string, error) {
 	prompt := "Generate an image of the following animals, side by side and from left to right. Don't add any other, they should be 7.\n"
 	for _, weather := range weathers {
-		p, err := getDallEPrompt(weather)
+		p, err := getDallEPrompt(ctx, weather)
 		if err != nil {
 			fmt.Printf("Error getting prompt: %v\n", err)
 			return "", err
@@ -93,7 +97,7 @@ func GenerateWeeklyMidjourneyPicture(weathers []gatherers.Weather) (string, erro
 
 	prompt += "--no human --ar 7:4"
 
-	url, err := generateSimpleImage(prompt)
+	url, err := generateSimpleImage(ctx, prompt)
 	if err != nil {
 		fmt.Printf("Error generating image: %v\n", err)
 		return "", err

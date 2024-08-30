@@ -7,6 +7,7 @@ import (
 
 	openai "github.com/sashabaranov/go-openai"
 
+	"smee.ovh/toopasbo/config"
 	"smee.ovh/toopasbo/gatherers"
 )
 
@@ -27,15 +28,15 @@ General description is %s
 You could summarize the weather as %s
 `
 
-func GetClothesForWeather(weather gatherers.Weather) (string, error) {
+func GetClothesForWeather(ctx context.Context, weather gatherers.Weather) (string, error) {
 	fmt.Println("Generating clothes suggestion...")
 	prompt := fmt.Sprintf(clothesPromptTemplate, weather.CurrentTemperature, weather.MinTemperature, weather.MaxTemperature, weather.WindSpeed, weather.Description, weather.Summary)
 
-	c := openai.NewClient(openaiAPIKey)
-	ctx := context.Background()
+	appConfig := config.GetAppConfig(ctx)
+	c := openai.NewClient(appConfig.OpenaiAPIKey)
 
 	req := openai.ChatCompletionRequest{
-		Model:     openai.GPT4o,
+		Model:     openai.GPT4oMini,
 		MaxTokens: 128,
 		Messages: []openai.ChatCompletionMessage{
 			{

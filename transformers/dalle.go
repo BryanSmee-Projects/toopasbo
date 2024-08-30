@@ -7,14 +7,15 @@ import (
 
 	openai "github.com/sashabaranov/go-openai"
 
+	"smee.ovh/toopasbo/config"
 	"smee.ovh/toopasbo/gatherers"
 )
 
 var dallEPromptTemplate = `Photo of a humanoid %s dressed with %s.`
 
-func getDallEPrompt(weather gatherers.Weather) (string, error) {
+func getDallEPrompt(ctx context.Context, weather gatherers.Weather) (string, error) {
 	animal := GetAnimalsByTemperature(weather.MaxTemperature)
-	clothes, err := GetClothesForWeather(weather)
+	clothes, err := GetClothesForWeather(ctx, weather)
 	if err != nil {
 		fmt.Printf("Error getting clothes: %v\n", err)
 		return "", err
@@ -22,15 +23,15 @@ func getDallEPrompt(weather gatherers.Weather) (string, error) {
 	return fmt.Sprintf(dallEPromptTemplate, animal, clothes), nil
 }
 
-func GenerateDallEPicture(weather gatherers.Weather) (string, error) {
-	prompt, promptErr := getDallEPrompt(weather)
+func GenerateDallEPicture(ctx context.Context, weather gatherers.Weather) (string, error) {
+	prompt, promptErr := getDallEPrompt(ctx, weather)
 	if promptErr != nil {
 		fmt.Printf("Error getting prompt: %v\n", promptErr)
 		return "", promptErr
 	}
 
-	client := openai.NewClient(openaiAPIKey)
-	ctx := context.Background()
+	appConfig := config.GetAppConfig(ctx)
+	client := openai.NewClient(appConfig.OpenaiAPIKey)
 
 	fmt.Println("Creating image...")
 	fmt.Println(prompt)
@@ -58,10 +59,10 @@ func GenerateDallEPicture(weather gatherers.Weather) (string, error) {
 
 }
 
-func GenerateWeeklyDallEPicture(weathers []gatherers.Weather) (string, error) {
+func GenerateWeeklyDallEPicture(ctx context.Context, weathers []gatherers.Weather) (string, error) {
 	prompt := "Generate an image of the following animals, side by side and from left to right. Don't add any other, they should be 7.\n"
 	for _, weather := range weathers {
-		p, err := getDallEPrompt(weather)
+		p, err := getDallEPrompt(ctx, weather)
 		if err != nil {
 			fmt.Printf("Error getting prompt: %v\n", err)
 			return "", err
@@ -69,8 +70,8 @@ func GenerateWeeklyDallEPicture(weathers []gatherers.Weather) (string, error) {
 		prompt += " - " + strings.TrimSpace(p) + "\n"
 	}
 
-	client := openai.NewClient(openaiAPIKey)
-	ctx := context.Background()
+	appConfig := config.GetAppConfig(ctx)
+	client := openai.NewClient(appConfig.OpenaiAPIKey)
 
 	fmt.Println("Creating image...")
 	fmt.Println(prompt)

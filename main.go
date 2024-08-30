@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 
-	"github.com/cloudevents/sdk-go/v2/event"
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
+
+	"smee.ovh/toopasbo/config"
 	"smee.ovh/toopasbo/endpoints"
-	"smee.ovh/toopasbo/jobs"
 )
 
 // TODO: Routing for telegram
@@ -22,35 +23,32 @@ func serverMode() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	wg := &sync.WaitGroup{}
-	wg.Add(2)
-	telegramBot := endpoints.StartTelegram(ctx)
-
-	cloudEventContext := endpoints.CloudEventContext{
-		Bot: telegramBot,
-		Ctx: ctx,
+	is_running_in_aws := os.Getenv("RUNTIME_ENVIRONMENT") == "aws"
+	var appConfig config.Config
+	if is_running_in_aws {
+		fmt.Println("Running in AWS")
+		appConfig = config.NewConfigFromAWS()
+	} else {
+		fmt.Println("Running in local")
+		appConfig = config.NewConfigFromEnv()
 	}
 
-	cloudeventRouter := endpoints.NewCloudEventRouter()
-	telegramHandler := endpoints.ToCloudEventHandler(endpoints.SendImageAllCloudEventHandler, cloudEventContext)
-	endpoints.RegisterHandler(cloudeventRouter, "telegram.sendall", telegramHandler.(func(event.Event)))
-	endpoints.StartCloudEventHandler(cloudeventRouter.DispatchEvent, ctx)
+	ctx = context.WithValue(ctx, config.AppConfigContextKey, appConfig)
 
-	wg.Wait()
+	wc, err := endpoints.NewWebhookClient(ctx)
+	if err != nil {
+		panic(err)
+	}
 
+	http.HandleFunc("/", wc.HttpHandler())
+	if is_running_in_aws {
+		lambda.Start(httpadapter.New(http.DefaultServeMux).ProxyWithContext)
+	} else {
+		fmt.Println("Running local server")
+		http.ListenAndServe("0.0.0.0:8080", nil)
+	}
 }
 
 func main() {
-
-	boolFlag := flag.Bool("server", false, "Run it in server mode")
-	jobFlag := flag.String("job", "", "Run this job")
-	flag.Parse()
-	if *boolFlag {
-		serverMode()
-	}
-	if *jobFlag != "" {
-		jobs.RunJob(*jobFlag)
-	} else {
-		panic("No mode selected for the application. Please select either -server or -job flag.")
-	}
+	serverMode()
 }

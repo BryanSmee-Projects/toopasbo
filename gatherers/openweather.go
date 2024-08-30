@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 )
 
 type OpenWeatherResponse struct {
@@ -31,17 +30,16 @@ type OpenWeatherResponse struct {
 	} `json:"daily"`
 }
 
-var apiKey string = os.Getenv("OPENWEATHER_API_KEY")
 var defaultUrl string = "https://api.openweathermap.org/data/3.0/onecall?lat=%s&lon=%s&units=metric&exclude=minutely,hourly&appid=%s"
 
-func buildUrl(lat, lon string) string {
-	return fmt.Sprintf(defaultUrl, lat, lon, apiKey)
+func (client *OpenWeatherClient) buildUrl(lat, lon string) string {
+	return fmt.Sprintf(defaultUrl, lat, lon, client.OpenWeatherAPIKey)
 }
 
-func GetWeather(position GeoPosition) (Weather, error) {
+func (client *OpenWeatherClient) GetWeather(position GeoPosition) (Weather, error) {
 	latStr := fmt.Sprintf("%f", position.lat)
 	lonStr := fmt.Sprintf("%f", position.lon)
-	url := buildUrl(latStr, lonStr)
+	url := client.buildUrl(latStr, lonStr)
 	resp, err := http.Get(url)
 	if err != nil {
 		return Weather{}, err
@@ -70,10 +68,10 @@ func GetWeather(position GeoPosition) (Weather, error) {
 	}, nil
 }
 
-func GetWeatherForWeek(position GeoPosition) ([]Weather, error) {
+func (client *OpenWeatherClient) GetWeatherForWeek(position GeoPosition) ([]Weather, error) {
 	latStr := fmt.Sprintf("%f", position.lat)
 	lonStr := fmt.Sprintf("%f", position.lon)
-	url := buildUrl(latStr, lonStr)
+	url := client.buildUrl(latStr, lonStr)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
